@@ -1,0 +1,20 @@
+set -e
+
+if [ ! -f "/var/cache/xsp-$VERSION.tar.gz" ]; then
+  wget -q -O /var/cache/xsp-$VERSION.tar.gz https://codeload.github.com/mono/xsp/tar.gz/$VERSION 
+fi
+
+tar zxf /var/cache/xsp-$VERSION.tar.gz
+
+export PATH="/app/mono/bin:$PATH"
+export PKG_CONFIG_PATH="/app/mono/lib/pkgconfig:$PKG_CONFIG_PATH"
+
+cd xsp-$VERSION
+MONO_LOCATION=/app ./autogen.sh --prefix=/app/xsp --sysconfdir=/app/xsp
+make
+make install
+
+cd /app
+tar -zcf - xsp | /gof3r put --md5Check-off -b mono-dependencies -k xsp-$VERSION.tar.gz
+
+
